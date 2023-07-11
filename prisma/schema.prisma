@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(uuid()) @map("_id")
+  name         String
+  email        String         @unique
+  password     String         @unique
+  is_archived  Boolean?       @default(true)
+  RefreshToken RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @map("_id")
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model Category {
+  id          String       @id @default(uuid()) @map("_id")
+  title       String
+  is_archived Boolean?     @default(true)
+  components  Components[]
+}
+
+model Components {
+  id          String    @id @default(uuid()) @map("_id")
+  title       String
+  image       String
+  code_block  String
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  is_archived Boolean?  @default(false)
+}
+
+model Image {
+  id    String @id @default(uuid()) @map("_id")
+  image String @unique
+}
+
+model Page {
+  id           String   @id @default(uuid()) @map("_id")
+  title        String
+  description  String?
+  slug         String   @unique
+  html         String?
+  image        String?
+  is_published Boolean? @default(true)
+  is_archived  Boolean? @default(true)
+}
